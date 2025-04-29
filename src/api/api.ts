@@ -2,7 +2,7 @@ import axios from 'axios';
 import { User, Question, Quiz, QuizResult } from '../types';
 
 // בפרויקט אמיתי נשתמש בכתובת השרת האמיתית
-const API_URL = 'https://api.quizmaster.com';
+const API_URL = 'https://localhost:7104/';
 
 // נייצר מופע של Axios עם הגדרות בסיסיות
 const api = axios.create({
