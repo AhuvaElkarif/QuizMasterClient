@@ -1,168 +1,113 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { useAppSelector } from "../redux/hooks";
-// import { RootState } from '../utils/types';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import styled from 'styled-components';
+import { Button, Card, Section } from '../styles/Theme';
 
-const HomeContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-`;
-
-const HeroSection = styled.section`
+const HeroSection = styled.div`
   text-align: center;
-  padding: 60px 0;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  margin-bottom: 60px;
+  padding: var(--spacing-xxl) 0;
 `;
 
-const Title = styled.h1`
+const HeroTitle = styled.h1`
   font-size: 48px;
-  color: #333;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
 `;
 
-const Subtitle = styled.p`
-  font-size: 20px;
-  color: #666;
-  max-width: 700px;
-  margin: 0 auto 30px;
-  line-height: 1.6;
+const HeroSubtitle = styled.p`
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-xl);
+  color: var(--color-text-secondary);
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 40px;
-`;
-
-const Button = styled(Link)`
-  padding: 14px 32px;
-  font-size: 18px;
-  font-weight: 500;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: all 0.2s;
-`;
-
-const PrimaryButton = styled(Button)`
-  background-color: #4a90e2;
-  color: white;
-  
-  &:hover {
-    background-color: #3a7bc8;
-  }
-`;
-
-const SecondaryButton = styled(Button)`
-  background-color: white;
-  color: #4a90e2;
-  border: 2px solid #4a90e2;
-  
-  &:hover {
-    background-color: #f5f5f5;
-  }
-`;
-
-const FeaturesSection = styled.section`
-  margin: 60px 0;
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 32px;
-  color: #333;
-  text-align: center;
-  margin-bottom: 40px;
-`;
-
-const FeaturesGrid = styled.div`
+const FeatureCards = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin: var(--spacing-xl) 0;
 `;
 
-const FeatureCard = styled.div`
-  background-color: white;
-  border-radius: 8px;
-  padding: 30px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
-  
-  &:hover {
-    transform: translateY(-5px);
-  }
+const FeatureCard = styled(Card)`
+  text-align: center;
 `;
 
-const FeatureTitle = styled.h3`
-  font-size: 20px;
-  color: #333;
-  margin-bottom: 15px;
+const FeatureIcon = styled.div`
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
 `;
 
-const FeatureDescription = styled.p`
-  font-size: 16px;
-  color: #666;
-  line-height: 1.6;
+const CallToAction = styled.div`
+  text-align: center;
+  margin: var(--spacing-xxl) 0;
 `;
 
 const HomePage: React.FC = () => {
-  const user = null;//useAppSelector((state) => state.auth.user);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  
+  const getDashboardLink = () => {
+    if (!isAuthenticated || !user) return '/login';
+    
+    if (user.role === 'teacher') {
+      return '/teacher';
+    } else if (user.role === 'student') {
+      return '/student';
+    }
+    
+    return '/';
+  };
   
   return (
-    <HomeContainer>
+    <>
       <HeroSection>
-        <Title>Welcome to QuizMaster</Title>
-        <Subtitle>
-          An interactive platform for creating and taking quizzes. Perfect for teachers and students!
-        </Subtitle>
+        <HeroTitle>ברוכים הבאים ל-QuizMaster</HeroTitle>
+        <HeroSubtitle>פלטפורמה מתקדמת לניהול מבחנים אמריקאיים למורים ותלמידים</HeroSubtitle>
         
-        <ButtonContainer>
-          {user ? (
-            // If user is logged in, show dashboard links based on role
-            user.role === 'teacher' ? (
-              <PrimaryButton to="/teacher/dashboard">Teacher Dashboard</PrimaryButton>
-            ) : (
-              <PrimaryButton to="/student/dashboard">Student Dashboard</PrimaryButton>
-            )
-          ) : (
-            // If no user is logged in, show login/register links
-            <>
-              <PrimaryButton to="/login">Log In</PrimaryButton>
-              <SecondaryButton to="/register">Sign Up</SecondaryButton>
-            </>
-          )}
-        </ButtonContainer>
+        {isAuthenticated ? (
+          <Button as={Link} to={getDashboardLink()}>כניסה ללוח הבקרה</Button>
+        ) : (
+          <div>
+            <Button as={Link} to="/register" style={{ marginLeft: 'var(--spacing-md)' }}>הרשמה</Button>
+            <Button as={Link} to="/login" variant="outline">התחברות</Button>
+          </div>
+        )}
       </HeroSection>
       
-      <FeaturesSection>
-        <SectionTitle>Features</SectionTitle>
-        <FeaturesGrid>
+      <Section>
+        <h2 style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>תכונות מרכזיות</h2>
+        
+        <FeatureCards>
           <FeatureCard>
-            <FeatureTitle>For Teachers</FeatureTitle>
-            <FeatureDescription>
-              Create multiple-choice questions, organize them into quizzes, and track student performance.
-            </FeatureDescription>
+            <FeatureIcon>📚</FeatureIcon>
+            <h3>ניהול שאלות</h3>
+            <p>צור, ערוך ונהל מאגר שאלות אמריקאיות בממשק פשוט וידידותי.</p>
           </FeatureCard>
           
           <FeatureCard>
-            <FeatureTitle>For Students</FeatureTitle>
-            <FeatureDescription>
-              Take quizzes, get immediate feedback, and track your progress over time.
-            </FeatureDescription>
+            <FeatureIcon>📝</FeatureIcon>
+            <h3>מבחנים מותאמים</h3>
+            <p>תלמידים יכולים לקחת מבחנים אקראיים המבוססים על מאגר השאלות.</p>
           </FeatureCard>
           
           <FeatureCard>
-            <FeatureTitle>Easy to Use</FeatureTitle>
-            <FeatureDescription>
-              Intuitive interface that makes creating and taking quizzes a breeze.
-            </FeatureDescription>
+            <FeatureIcon>📊</FeatureIcon>
+            <h3>ניתוח תוצאות</h3>
+            <p>קבל ציונים והערכות מיידיות עם משוב מפורט לאחר השלמת המבחן.</p>
           </FeatureCard>
-        </FeaturesGrid>
-      </FeaturesSection>
-    </HomeContainer>
+        </FeatureCards>
+      </Section>
+      
+      <CallToAction>
+        <h2>מוכנים להתחיל?</h2>
+        <p style={{ marginBottom: 'var(--spacing-lg)' }}>צור חשבון והתחל להשתמש במערכת עוד היום!</p>
+        
+        {isAuthenticated ? (
+          <Button as={Link} to={getDashboardLink()}>כניסה ללוח הבקרה</Button>
+        ) : (
+          <Button as={Link} to="/register">הרשמה עכשיו</Button>
+        )}
+      </CallToAction>
+    </>
   );
 };
 
