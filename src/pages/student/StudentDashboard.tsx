@@ -1,5 +1,280 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+
+// Styled components
+const Container = styled.div`
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+`;
+
+const Card = styled.div`
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+`;
+
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+`;
+
+const ProfileSection = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  @media (min-width: 768px) {
+    margin-bottom: 0;
+  }
+`;
+
+const AvatarContainer = styled.div`
+  background-color: #e6f0ff;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  margin-right: 1rem;
+`;
+
+const Avatar = styled.img`
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+`;
+
+const AvatarPlaceholder = styled.div`
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: #3b82f6;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+`;
+
+const ProfileInfo = styled.div``;
+
+const DashboardTitle = styled.h1`
+  font-size: 1.5rem;
+  font-weight: bold;
+`;
+
+const ClassInfo = styled.p`
+  color: #4b5563;
+`;
+
+const DateContainer = styled.div`
+  background-color: #ebf5ff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+`;
+
+const DateText = styled.p`
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e40af;
+`;
+
+const TabContainer = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const TabNav = styled.nav`
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+`;
+
+const TabButton = styled.button<{ active: boolean }>`
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+  color: ${props => (props.active ? '#2563eb' : '#6b7280')};
+  border-bottom: ${props => (props.active ? '2px solid #3b82f6' : 'none')};
+  
+  &:hover {
+    color: ${props => (props.active ? '#2563eb' : '#4b5563')};
+  }
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 3rem 0;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+`;
+
+const EmptyStateText = styled.p`
+  color: #6b7280;
+  font-size: 1.125rem;
+`;
+
+const QuizGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const QuizCard = styled.div`
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  transition: box-shadow 0.3s;
+  
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const QuizHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+`;
+
+const QuizTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+`;
+
+const SubjectTag = styled.span`
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  background-color: #e6f0ff;
+  color: #1e40af;
+`;
+
+const InfoText = styled.p`
+  color: #4b5563;
+  margin-bottom: 1rem;
+`;
+
+const DaysLeftTag = styled.span`
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #fef9c3;
+  color: #854d0e;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+`;
+
+const ActionButton = styled.button`
+  width: 100%;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.5rem 0;
+  border-radius: 0.25rem;
+  
+  &:hover {
+    background-color: #2563eb;
+  }
+  
+  &:disabled {
+    background-color: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+  }
+`;
+
+const ScoreTag = styled.span<{ score: number }>`
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: ${props => {
+    const percentage = props.score;
+    if (percentage >= 80) return '#dcfce7';
+    if (percentage >= 60) return '#fef9c3';
+    return '#fee2e2';
+  }};
+  color: ${props => {
+    const percentage = props.score;
+    if (percentage >= 80) return '#166534';
+    if (percentage >= 60) return '#854d0e';
+    return '#b91c1c';
+  }};
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+`;
+
+const LoadingContent = styled.div`
+  text-align: center;
+`;
+
+const Spinner = styled.div`
+  width: 4rem;
+  height: 4rem;
+  border: 4px solid #3b82f6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const LoadingText = styled.p`
+  margin-top: 1rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+`;
+
+const ErrorContent = styled.div`
+  background-color: #fef2f2;
+  border-left: 4px solid #ef4444;
+  padding: 1rem;
+  border-radius: 0.375rem;
+`;
+
+const ErrorText = styled.p`
+  color: #b91c1c;
+`;
+
+const RetryButton = styled.button`
+  margin-top: 1rem;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  
+  &:hover {
+    background-color: #2563eb;
+  }
+`;
 
 interface Quiz {
   id: string;
@@ -38,15 +313,6 @@ const StudentsDashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // In real implementation, replace with actual API calls
-        // const profileResponse = await fetch('/api/student/profile');
-        // const profileData = await profileResponse.json();
-        // setStudentProfile(profileData);
-        
-        // const quizzesResponse = await fetch('/api/student/quizzes');
-        // const quizzesData = await quizzesResponse.json();
-        // setQuizzes(quizzesData);
         
         // Mock data for development
         setStudentProfile({
@@ -153,195 +419,164 @@ const StudentsDashboard: React.FC = () => {
   
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-lg font-medium">Loading dashboard...</p>
-        </div>
-      </div>
+      <LoadingContainer>
+        <LoadingContent>
+          <Spinner />
+          <LoadingText>Loading dashboard...</LoadingText>
+        </LoadingContent>
+      </LoadingContainer>
     );
   }
   
   if (error || !studentProfile) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-          <p className="text-red-700">{error || 'Failed to load student profile'}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
+      <ErrorContainer>
+        <ErrorContent>
+          <ErrorText>{error || 'Failed to load student profile'}</ErrorText>
+          <RetryButton onClick={() => window.location.reload()}>
             Retry
-          </button>
-        </div>
-      </div>
+          </RetryButton>
+        </ErrorContent>
+      </ErrorContainer>
     );
   }
   
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="bg-white shadow-md rounded-lg p-6">
+    <Container>
+      <Card>
         {/* Header with student info */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 pb-6 border-b border-gray-200">
-          <div className="flex items-center mb-4 md:mb-0">
-            <div className="bg-blue-100 p-2 rounded-full mr-4">
+        <Header>
+          <ProfileSection>
+            <AvatarContainer>
               {studentProfile.avatarUrl ? (
-                <img 
+                <Avatar 
                   src={studentProfile.avatarUrl} 
                   alt={studentProfile.name} 
-                  className="w-10 h-10 rounded-full"
                 />
               ) : (
-                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                <AvatarPlaceholder>
                   {studentProfile.name.charAt(0)}
-                </div>
+                </AvatarPlaceholder>
               )}
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">{studentProfile.name}'s Dashboard</h1>
-              <p className="text-gray-600">{studentProfile.class}</p>
-            </div>
-          </div>
+            </AvatarContainer>
+            <ProfileInfo>
+              <DashboardTitle>{studentProfile.name}'s Dashboard</DashboardTitle>
+              <ClassInfo>{studentProfile.class}</ClassInfo>
+            </ProfileInfo>
+          </ProfileSection>
           
-          <div className="bg-blue-50 px-6 py-3 rounded-lg">
-            <p className="text-sm font-medium text-blue-800">
+          <DateContainer>
+            <DateText>
               Current Date: {new Date().toLocaleDateString()}
-            </p>
-          </div>
-        </div>
+            </DateText>
+          </DateContainer>
+        </Header>
         
         {/* Tabs */}
-        <div className="mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
-              <button
-                className={`py-4 px-6 font-medium ${
-                  activeTab === 'available'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab('available')}
-              >
-                Available Quizzes
-              </button>
-              <button
-                className={`py-4 px-6 font-medium ${
-                  activeTab === 'upcoming'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab('upcoming')}
-              >
-                Upcoming Quizzes
-              </button>
-              <button
-                className={`py-4 px-6 font-medium ${
-                  activeTab === 'completed'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab('completed')}
-              >
-                Completed Quizzes
-              </button>
-            </nav>
-          </div>
-        </div>
+        <TabContainer>
+          <TabNav>
+            <TabButton
+              active={activeTab === 'available'}
+              onClick={() => setActiveTab('available')}
+            >
+              Available Quizzes
+            </TabButton>
+            <TabButton
+              active={activeTab === 'upcoming'}
+              onClick={() => setActiveTab('upcoming')}
+            >
+              Upcoming Quizzes
+            </TabButton>
+            <TabButton
+              active={activeTab === 'completed'}
+              onClick={() => setActiveTab('completed')}
+            >
+              Completed Quizzes
+            </TabButton>
+          </TabNav>
+        </TabContainer>
         
         {/* Quiz List */}
         {filteredQuizzes.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <p className="text-gray-500 text-lg">
+          <EmptyState>
+            <EmptyStateText>
               No {activeTab} quizzes found.
-            </p>
-          </div>
+            </EmptyStateText>
+          </EmptyState>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <QuizGrid>
             {filteredQuizzes.map(quiz => (
-              <div key={quiz.id} className="bg-gray-50 rounded-lg p-5 hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-xl font-semibold">{quiz.title}</h3>
-                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+              <QuizCard key={quiz.id}>
+                <QuizHeader>
+                  <QuizTitle>{quiz.title}</QuizTitle>
+                  <SubjectTag>
                     {quiz.subject}
-                  </span>
-                </div>
+                  </SubjectTag>
+                </QuizHeader>
                 
                 {activeTab === 'available' && (
                   <>
-                    <p className="text-gray-600 mb-4">
-                      <span className="font-medium">Due: </span>
+                    <InfoText>
+                      <strong>Due: </strong>
                       {formatDueDate(quiz.dueDate)}
-                      <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">
+                      <DaysLeftTag>
                         {getDaysRemaining(quiz.dueDate)} days left
-                      </span>
-                    </p>
-                    <p className="text-gray-600 mb-4">
-                      <span className="font-medium">Questions: </span>
+                      </DaysLeftTag>
+                    </InfoText>
+                    <InfoText>
+                      <strong>Questions: </strong>
                       {quiz.totalQuestions}
-                    </p>
-                    <button
-                      onClick={() => handleStartQuiz(quiz.id)}
-                      className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-                    >
+                    </InfoText>
+                    <ActionButton onClick={() => handleStartQuiz(quiz.id)}>
                       Start Quiz
-                    </button>
+                    </ActionButton>
                   </>
                 )}
                 
                 {activeTab === 'upcoming' && (
                   <>
-                    <p className="text-gray-600 mb-4">
-                      <span className="font-medium">Available on: </span>
+                    <InfoText>
+                      <strong>Available on: </strong>
                       {formatDueDate(quiz.dueDate)}
-                    </p>
-                    <p className="text-gray-600 mb-4">
-                      <span className="font-medium">Questions: </span>
+                    </InfoText>
+                    <InfoText>
+                      <strong>Questions: </strong>
                       {quiz.totalQuestions}
-                    </p>
-                    <button
-                      disabled
-                      className="w-full bg-gray-300 text-gray-500 py-2 rounded cursor-not-allowed"
-                    >
+                    </InfoText>
+                    <ActionButton disabled>
                       Not Available Yet
-                    </button>
+                    </ActionButton>
                   </>
                 )}
                 
                 {activeTab === 'completed' && quiz.status === 'completed' && (
                   <>
-                    <div className="flex justify-between items-center mb-4">
-                      <p className="text-gray-600">
-                        <span className="font-medium">Score: </span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <InfoText style={{ margin: 0 }}>
+                        <strong>Score: </strong>
                         {quiz.score}/{quiz.totalQuestions}
-                      </p>
-                     {quiz.score && <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        (quiz.score / quiz.totalQuestions) * 100 >= 80
-                          ? 'bg-green-100 text-green-800'
-                          : (quiz.score / quiz.totalQuestions) * 100 >= 60
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {Math.round((quiz.score / quiz.totalQuestions) * 100)}%
-                      </span>}
+                      </InfoText>
+                      {quiz.score && (
+                        <ScoreTag score={(quiz.score / quiz.totalQuestions) * 100}>
+                          {Math.round((quiz.score / quiz.totalQuestions) * 100)}%
+                        </ScoreTag>
+                      )}
                     </div>
-                    <p className="text-gray-600 mb-4">
-                      <span className="font-medium">Submitted: </span>
+                    <InfoText>
+                      <strong>Submitted: </strong>
                       {new Date(quiz.dueDate).toLocaleDateString()}
-                    </p>
-                    <button
-                      onClick={() => handleViewResults(quiz.id)}
-                      className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-                    >
+                    </InfoText>
+                    <ActionButton onClick={() => handleViewResults(quiz.id)}>
                       View Detailed Results
-                    </button>
+                    </ActionButton>
                   </>
                 )}
-              </div>
+              </QuizCard>
             ))}
-          </div>
+          </QuizGrid>
         )}
-      </div>
-    </div>
+      </Card>
+    </Container>
   );
 };
 
