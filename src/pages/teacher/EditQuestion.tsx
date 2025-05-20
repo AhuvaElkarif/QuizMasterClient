@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import api from '../../api/api';
+import { AddOptionButton, ButtonGroup, CancelButton, Card, ErrorText, FormGroup, Header, HelpText, Label, LoadingContainer, LoadingSpinner, LoadingText, OptionInput, OptionRow, OptionsContainer, OptionsHeader, PointsContainer, PointsInput, PointsLabel, PointsUnit, Radio, RemoveButton, SaveButton, TextArea, Title } from '../../styles/EditQuestion';
+import { Container, ErrorMessage } from '../../styles/Theme';
 
 interface QuestionOption {
   id: string;
@@ -16,13 +19,20 @@ interface Question {
   quizId: string;
 }
 
+interface QuestionUpdateRequest {
+  text: string;
+  options: string[];
+  correctAnswer: string;
+  category: string;
+  difficultyLevel: number;
+}
+
 const EditQuestion: React.FC = () => {
   const { questionId } = useParams<{ questionId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const isNewQuestion = questionId === 'new';
   
-  // Get quizId from location state or query params
   const quizId = location.state?.quizId || new URLSearchParams(location.search).get('quizId');
   
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,7 +56,6 @@ const EditQuestion: React.FC = () => {
   useEffect(() => {
     const fetchQuestion = async () => {
       if (isNewQuestion) {
-        // For new question, just initialize with empty state
         setQuestion(prev => ({
           ...prev,
           quizId: quizId || ''
@@ -57,33 +66,30 @@ const EditQuestion: React.FC = () => {
       
       try {
         setLoading(true);
+        console.log("questionId",questionId)
+        const response = await api.get(`/questions/${questionId}`);
         
-        // In real implementation, replace with actual API call
-        // const response = await fetch(`/api/questions/${questionId}`);
-        // if (!response.ok) throw new Error('Failed to fetch question');
-        // const data = await response.json();
-        // setQuestion(data);
+        // Convert from API model to our component model
+        const questionData = response.data;
         
-        // Mock data for development
-        const mockQuestion: Question = {
-          id: questionId || 'q1',
-          text: 'What is the capital of France?',
-          options: [
-            { id: 'opt1', text: 'London' },
-            { id: 'opt2', text: 'Berlin' },
-            { id: 'opt3', text: 'Paris' },
-            { id: 'opt4', text: 'Madrid' }
-          ],
-          correctOptionId: 'opt3',
-          explanation: 'Paris is the capital and most populous city of France.',
-          points: 2,
-          quizId: quizId || 'quiz-1'
+        // Format the data to match our frontend model
+        const formattedQuestion = {
+          id: questionData.id,
+          text: questionData.text,
+          options: questionData.options.map((text: string, index: number) => ({
+            id: `opt${index + 1}`,
+            text
+          })),
+          correctOptionId: `opt${questionData.options.indexOf(questionData.correctAnswer) + 1}`,
+          explanation: questionData.explanation || '',
+          points: questionData.difficultyLevel || 1,
+          quizId: questionData.quizId || quizId || ''
         };
         
-        setQuestion(mockQuestion);
+        setQuestion(formattedQuestion);
       } catch (err) {
         console.error(err);
-        setError('Failed to load question. Please try again.');
+        setError('נכשל בטעינת השאלה. אנא נסה שוב.');
       } finally {
         setLoading(false);
       }
@@ -134,7 +140,7 @@ const EditQuestion: React.FC = () => {
   
   const addOption = () => {
     if (question.options.length >= 6) {
-      setError('Maximum of 6 options allowed');
+      setError('מקסימום 6 אפשרויות מותרות');
       return;
     }
     
@@ -148,7 +154,7 @@ const EditQuestion: React.FC = () => {
   
   const removeOption = (id: string) => {
     if (question.options.length <= 2) {
-      setError('Minimum of 2 options required');
+      setError('נדרשות לפחות 2 אפשרויות');
       return;
     }
     
@@ -169,25 +175,25 @@ const EditQuestion: React.FC = () => {
   const validateQuestion = (): boolean => {
     // Check if question text is present
     if (!question.text.trim()) {
-      setError('Question text is required');
+      setError('נדרש טקסט לשאלה');
       return false;
     }
     
     // Check if at least 2 options are present and all have text
     if (question.options.length < 2) {
-      setError('At least 2 options are required');
+      setError('נדרשות לפחות 2 אפשרויות');
       return false;
     }
     
     const emptyOption = question.options.find(opt => !opt.text.trim());
     if (emptyOption) {
-      setError('All options must have text');
+      setError('כל האפשרויות חייבות להכיל טקסט');
       return false;
     }
     
     // Check if correct answer is selected
     if (!question.correctOptionId) {
-      setError('Please select the correct answer');
+      setError('אנא בחר את התשובה הנכונה');
       return false;
     }
     
@@ -200,26 +206,34 @@ const EditQuestion: React.FC = () => {
     try {
       setSaving(true);
       
-      // In real implementation, replace with actual API call
-      // const method = isNewQuestion ? 'POST' : 'PUT';
-      // const url = isNewQuestion ? '/api/questions' : `/api/questions/${questionId}`;
-      // const response = await fetch(url, {
-      //   method,
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(question)
-      // });
+      // Convert our frontend model to the API request model
+      const correctOptionIndex = question.options.findIndex(opt => opt.id === question.correctOptionId);
+      const correctAnswer = correctOptionIndex !== -1 ? question.options[correctOptionIndex].text : '';
       
-      // if (!response.ok) throw new Error('Failed to save question');
+      const questionUpdateRequest: QuestionUpdateRequest = {
+        text: question.text,
+        options: question.options.map(opt => opt.text),
+        correctAnswer: correctAnswer,
+        category: 'General', // Default category or get from form
+        difficultyLevel: question.points
+      };
       
-      // Simulate API call
-      console.log('Saving question:', question);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (isNewQuestion) {
+        // Create new question
+        await api.post('/questions', {
+          ...questionUpdateRequest,
+          quizId: question.quizId
+        });
+      } else {
+        // Update existing question
+        await api.put(`/questions/${questionId}`, questionUpdateRequest);
+      }
       
       // Redirect back to quiz editor
       navigate(`/teacher/quiz/${question.quizId}`);
     } catch (err) {
       console.error(err);
-      setError('Failed to save question. Please try again.');
+      setError('נכשל בשמירת השאלה. אנא נסה שוב.');
     } finally {
       setSaving(false);
     }
@@ -231,150 +245,132 @@ const EditQuestion: React.FC = () => {
   
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-lg font-medium">Loading question...</p>
+      <LoadingContainer>
+        <div>
+          <LoadingSpinner />
+          <LoadingText>טוען שאלה...</LoadingText>
         </div>
-      </div>
+      </LoadingContainer>
     );
   }
   
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold">
-            {isNewQuestion ? 'Create New Question' : 'Edit Question'}
-          </h1>
-          <div className="flex items-center">
-            <span className="mr-3 text-gray-600">Question value:</span>
-            <input
+    <Container>
+      <Card>
+        <Header>
+          <Title>
+            {isNewQuestion ? 'יצירת שאלה חדשה' : 'עריכת שאלה'}
+          </Title>
+          <PointsContainer>
+            <PointsLabel>ערך השאלה:</PointsLabel>
+            <PointsInput
               type="number"
               min="1"
               value={question.points}
               onChange={handlePointsChange}
-              className="w-16 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <span className="ml-1 text-gray-600">points</span>
-          </div>
-        </div>
+            <PointsUnit>נקודות</PointsUnit>
+          </PointsContainer>
+        </Header>
         
         {error && (
-          <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
-            <p className="text-red-700">{error}</p>
-          </div>
+          <ErrorMessage>
+            <ErrorText>{error}</ErrorText>
+          </ErrorMessage>
         )}
         
-        <div className="mb-6">
-          <label className="block text-lg font-medium text-gray-700 mb-2">
-            Question Text
-          </label>
-          <textarea
+        <FormGroup>
+          <Label>טקסט השאלה</Label>
+          <TextArea
             value={question.text}
             onChange={handleQuestionTextChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your question here..."
+            placeholder="הזן את השאלה שלך כאן..."
           />
-        </div>
+        </FormGroup>
         
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-lg font-medium text-gray-700">
-              Answer Options
-            </label>
-            <button
-              type="button"
-              onClick={addOption}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <FormGroup>
+          <OptionsHeader>
+            <Label>אפשרויות תשובה</Label>
+            <AddOptionButton type="button" onClick={addOption}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: '0.25rem' }}>
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
               </svg>
-              Add Option
-            </button>
-          </div>
+              הוסף אפשרות
+            </AddOptionButton>
+          </OptionsHeader>
           
-          <div className="space-y-3">
+          <OptionsContainer>
             {question.options.map((option) => (
-              <div key={option.id} className="flex items-center">
-                <input
+              <OptionRow key={option.id}>
+                <Radio
                   type="radio"
                   id={`correct-${option.id}`}
                   name="correctOption"
                   checked={question.correctOptionId === option.id}
                   onChange={() => handleCorrectOptionChange(option.id)}
-                  className="mr-3 h-5 w-5 text-blue-600"
                 />
-                <input
+                <OptionInput
                   type="text"
                   value={option.text}
                   onChange={(e) => handleOptionChange(option.id, e.target.value)}
-                  placeholder="Enter option text"
-                  className="flex-grow px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="הזן טקסט לאפשרות"
                 />
-                <button
+                <RemoveButton
                   type="button"
                   onClick={() => removeOption(option.id)}
-                  className="ml-3 text-red-500 hover:text-red-700"
-                  aria-label="Remove option"
+                  aria-label="הסר אפשרות"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                </button>
-              </div>
+                </RemoveButton>
+              </OptionRow>
             ))}
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Select the radio button next to the correct answer.
-          </p>
-        </div>
+          </OptionsContainer>
+          <HelpText>
+            סמן את כפתור הרדיו ליד התשובה הנכונה.
+          </HelpText>
+        </FormGroup>
         
-        <div className="mb-8">
-          <label className="block text-lg font-medium text-gray-700 mb-2">
-            Explanation (Optional)
-          </label>
-          <textarea
+        <FormGroup>
+          <Label>הסבר (אופציונלי)</Label>
+          <TextArea
             value={question.explanation || ''}
             onChange={handleExplanationChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter an explanation for the correct answer (shown to students after quiz completion)"
+            placeholder="הזן הסבר לתשובה הנכונה (יוצג לתלמידים לאחר השלמת החידון)"
           />
-        </div>
+        </FormGroup>
         
-        <div className="flex justify-end space-x-4">
-          <button
+        <ButtonGroup>
+          <CancelButton
             type="button"
             onClick={handleCancel}
-            className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
             disabled={saving}
           >
-            Cancel
-          </button>
-          <button
+            ביטול
+          </CancelButton>
+          <SaveButton
             type="button"
             onClick={handleSave}
-            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
             disabled={saving}
           >
             {saving ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" style={{ animation: 'spin 1s linear infinite', marginRight: '0.5rem' }}>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity="0.25" />
+                  <path opacity="0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Saving...
+                שומר...
               </>
             ) : (
-              'Save Question'
+              'שמור שאלה'
             )}
-          </button>
-        </div>
-      </div>
-    </div>
+          </SaveButton>
+        </ButtonGroup>
+      </Card>
+    </Container>
   );
 };
 

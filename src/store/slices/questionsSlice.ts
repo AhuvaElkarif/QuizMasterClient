@@ -12,7 +12,7 @@ const initialState: QuestionsState = {
 
 // Async thunks
 export const fetchQuestions = createAsyncThunk(
-  'questions/fetchQuestions',
+  'questions/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
       return await questionsAPI.getQuestions();
@@ -23,7 +23,7 @@ export const fetchQuestions = createAsyncThunk(
 );
 
 export const fetchQuestion = createAsyncThunk(
-  'questions/fetchQuestion',
+  'questions/fetchOne',
   async (id: string, { rejectWithValue }) => {
     try {
       return await questionsAPI.getQuestion(id);
@@ -34,9 +34,10 @@ export const fetchQuestion = createAsyncThunk(
 );
 
 export const createQuestion = createAsyncThunk(
-  'questions/createQuestion',
+  'questions/create',
   async (question: Omit<Question, 'id' | 'createdAt' | 'createdBy'>, { rejectWithValue }) => {
     try {
+      console.log(question)
       return await questionsAPI.createQuestion(question);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create question');
@@ -45,7 +46,7 @@ export const createQuestion = createAsyncThunk(
 );
 
 export const updateQuestion = createAsyncThunk(
-  'questions/updateQuestion',
+  'questions/update',
   async ({ id, questionData }: { id: string; questionData: Partial<Question> }, { rejectWithValue }) => {
     try {
       return await questionsAPI.updateQuestion(id, questionData);
@@ -56,7 +57,7 @@ export const updateQuestion = createAsyncThunk(
 );
 
 export const deleteQuestion = createAsyncThunk(
-  'questions/deleteQuestion',
+  'questions/delete',
   async (id: string, { rejectWithValue }) => {
     try {
       await questionsAPI.deleteQuestion(id);

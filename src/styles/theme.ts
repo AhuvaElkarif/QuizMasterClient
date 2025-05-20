@@ -69,7 +69,7 @@ export const TextArea = styled.textarea`
   
   &:focus {
     outline: none;
-    border-color: var(--border-color: var(--color-primary);
+    border-color: var(--color-primary);
   }
 `;
 
@@ -335,7 +335,7 @@ export const Table = styled.table`
 `;
 
 export const Th = styled.th`
-  text-align: right;
+  text-align: left;
   padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 2px solid var(--color-divider);
 `;

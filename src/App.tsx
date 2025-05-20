@@ -12,7 +12,7 @@ const App = () => {
   useEffect(() => {
     // אם יש טוקן בזיכרון המקומי, נשלוף את פרטי המשתמש
     if (localStorage.getItem('token')) {
-      store.dispatch(authAPI.getCurrentUser() as any);
+      // store.dispatch(authAPI.getCurrentUser() as any);
     }
   }, []);
 

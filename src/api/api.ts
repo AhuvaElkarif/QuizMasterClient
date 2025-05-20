@@ -4,15 +4,27 @@ import { User, Question, Quiz, QuizResult } from '../types';
 // בפרויקט אמיתי נשתמש בכתובת השרת האמיתית
 const API_URL = 'https://localhost:7104/';
 
-// נייצר מופע של Axios עם הגדרות בסיסיות
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: 'https://localhost:7104',
   headers: {
     'Content-Type': 'application/json',
-  },
+  }
 });
 
-// פונקציה מסייעת שמוסיפה את טוקן האימות לכל בקשה
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token'); 
+    
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -23,7 +35,6 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-// בדיקה האם יש טוקן בזיכרון המקומי והוספתו לבקשות
 const token = localStorage.getItem('token');
 if (token) {
   setAuthToken(token);
@@ -52,6 +63,7 @@ export const authAPI = {
 export const questionsAPI = {
   getQuestions: async () => {
     const response = await api.get('/questions');
+    console.log("tttt", response)
     return response.data;
   },
   getQuestion: async (id: string) => {
@@ -60,6 +72,7 @@ export const questionsAPI = {
   },
   createQuestion: async (question: Omit<Question, 'id' | 'createdAt' | 'createdBy'>) => {
     const response = await api.post('/questions', question);
+    console.log("רקדפםמדקקק",response)
     return response.data;
   },
   updateQuestion: async (id: string, questionData: Partial<Question>) => {
