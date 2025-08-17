@@ -1,6 +1,6 @@
 import { Exam, ExamResult, User, Question } from "./types";
 
-const API_BASE = "https://localhost:7100/api";
+const API_BASE = process.env.REACT_APP_API_BASE;
 
 // Helper to get JWT token from localStorage
 function getAuthToken(): string | null {

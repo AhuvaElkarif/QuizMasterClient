@@ -16,6 +16,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
+import { TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from 'react-router-dom';
@@ -140,7 +141,4 @@ const TeacherDashboard: React.FC = () => {
     </Box>
   );
 };
-
-import { TextField } from '@mui/material';
-
 export default TeacherDashboard;
