@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
@@ -7,9 +7,7 @@ import {
   TextField,
   Button,
   Typography,
-  Alert,
   Box,
-  MenuItem,
 } from '@mui/material';
 
 interface LoginForm {

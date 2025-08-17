@@ -9,7 +9,6 @@ import {
   ListItem,
   ListItemText,
   Collapse,
-  IconButton,
   Paper,
 } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';

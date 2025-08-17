@@ -29,9 +29,9 @@ const StudentTakeExam: React.FC = () => {
     if (!examId) return;
     setLoading(true);
     try {
-      console.log("exammm", examId)
+      console.log("exammm", examId);
       const data = await api.fetchExamById(examId);
-      console.log("data", data)
+      console.log("data", data);
       setExam(data);
       setAnswers(new Array(data.questions.length).fill(-1));
       setTimer(data.durationMinutes * 60);
@@ -43,29 +43,6 @@ const StudentTakeExam: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchExam();
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [examId]);
-
-  useEffect(() => {
-    if (timer <= 0 && exam) handleSubmit();
-    if (timer > 0) {
-      timerRef.current = setInterval(() => setTimer((t) => t - 1), 1000);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [timer]);
-
-  const onAnswerChange = (questionIndex: number, value: number) => {
-    const newAnswers = [...answers];
-    newAnswers[questionIndex] = value;
-    setAnswers(newAnswers);
   };
 
   const handleSubmit = async () => {
@@ -80,7 +57,7 @@ const StudentTakeExam: React.FC = () => {
         questionType: q.text, //q.questionType,
         answerValues: answers[idx] === -1 ? [] : [q.options[answers[idx]]], // sending selected option text as string
       }));
-      console.log("pp", exam, attemptId, submitAnswers)
+      console.log("pp", exam, attemptId, submitAnswers);
 
       await api.submitExamResult(attemptId, submitAnswers);
 
@@ -89,6 +66,29 @@ const StudentTakeExam: React.FC = () => {
     } catch (e) {
       alert("Failed to submit exam");
     }
+  };
+
+  useEffect(() => {
+    fetchExam();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [examId, fetchExam]);
+
+  useEffect(() => {
+    if (timer <= 0 && exam) handleSubmit();
+    if (timer > 0) {
+      timerRef.current = setInterval(() => setTimer((t) => t - 1), 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [timer, exam, handleSubmit]);
+
+  const onAnswerChange = (questionIndex: number, value: number) => {
+    const newAnswers = [...answers];
+    newAnswers[questionIndex] = value;
+    setAnswers(newAnswers);
   };
 
   if (loading || !exam) return <CircularProgress />;

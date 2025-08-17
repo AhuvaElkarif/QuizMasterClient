@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../api";
-import { ExamResult, Exam, Question } from "../../types";
+import { ExamResult, Exam } from "../../types";
 import {
   Box,
   Typography,

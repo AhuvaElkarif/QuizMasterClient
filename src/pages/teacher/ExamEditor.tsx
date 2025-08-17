@@ -16,8 +16,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  RadioGroup,
-  FormControlLabel,
   Radio,
   ListItemSecondaryAction,
   Divider,
@@ -58,7 +56,7 @@ const ExamEditor: React.FC = () => {
 
   useEffect(() => {
     fetchExam();
-  }, [examId]);
+  }, [examId, fetchExam]);
 
   // Handlers for exam title and duration change
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

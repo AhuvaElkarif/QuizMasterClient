@@ -47,7 +47,7 @@ const TeacherDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchExams();
-  }, []);
+  }, [fetchExams]);
 
   const handleCreateOpen = () => setCreateOpen(true);
   const handleCreateClose = () => setCreateOpen(false);
