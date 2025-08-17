@@ -1,7 +1,7 @@
 import { Exam, ExamResult, User, Question } from "./types";
 
 const API_BASE = process.env.REACT_APP_API_BASE;
-
+console.log("API_BASooooooE",API_BASE)
 // Helper to get JWT token from localStorage
 function getAuthToken(): string | null {
   return localStorage.getItem("token");
