@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { api } from '../../api';
-import { Exam } from '../../types';
+import React, { useCallback, useEffect, useState } from "react";
+import { api } from "../../api";
+import { Exam } from "../../types";
 import {
   Typography,
   Button,
@@ -15,35 +15,35 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from '@mui/material';
-import { TextField } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+} from "@mui/material";
+import { TextField } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [createOpen, setCreateOpen] = React.useState(false);
-  const [newTitle, setNewTitle] = React.useState('');
+  const [newTitle, setNewTitle] = React.useState("");
   const [newDuration, setNewDuration] = React.useState<number>(60);
 
   const navigate = useNavigate();
 
-  const fetchExams = async () => {
+  const fetchExams = useCallback(async () => {
     setLoading(true);
     try {
       if (!user) return;
       const data = await api.fetchExamsForTeacher();
       setExams(data);
     } catch (e) {
-      alert('Failed to load exams');
+      alert("Failed to load exams");
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchExams();
@@ -54,7 +54,7 @@ const TeacherDashboard: React.FC = () => {
 
   const handleCreateExam = async () => {
     if (!newTitle.trim()) {
-      alert('Title is required');
+      alert("Title is required");
       return;
     }
     try {
@@ -64,10 +64,10 @@ const TeacherDashboard: React.FC = () => {
         questions: [],
       });
       setCreateOpen(false);
-      console.log(newExam)
+      console.log(newExam);
       navigate(`/teacher/exam/${newExam.id}`);
     } catch (e) {
-      alert('Failed to create exam');
+      alert("Failed to create exam");
     }
   };
 
@@ -81,7 +81,12 @@ const TeacherDashboard: React.FC = () => {
         Teacher Dashboard
       </Typography>
 
-      <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreateOpen} sx={{ mb: 2 }}>
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={handleCreateOpen}
+        sx={{ mb: 2 }}
+      >
         Create New Exam
       </Button>
 
@@ -93,9 +98,16 @@ const TeacherDashboard: React.FC = () => {
         <List>
           {exams.map((exam) => (
             <ListItem key={exam.id} divider>
-              <ListItemText primary={exam.title} secondary={`Duration: ${exam.durationMinutes} min`} />
+              <ListItemText
+                primary={exam.title}
+                secondary={`Duration: ${exam.durationMinutes} min`}
+              />
               <ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(exam.id)}>
+                <IconButton
+                  edge="end"
+                  aria-label="edit"
+                  onClick={() => handleEdit(exam.id)}
+                >
                   <EditIcon />
                 </IconButton>
               </ListItemSecondaryAction>
@@ -109,7 +121,13 @@ const TeacherDashboard: React.FC = () => {
         <DialogContent>
           <Box
             component="form"
-            sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 300 }}
+            sx={{
+              mt: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              minWidth: 300,
+            }}
             noValidate
             autoComplete="off"
           >

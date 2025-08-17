@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../api";
 import { Exam, Question, UIQuestion } from "../../types";
@@ -38,12 +38,11 @@ const ExamEditor: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const fetchExam = async () => {
+  const fetchExam = useCallback(async () => {
     if (!examId) return;
     setLoading(true);
     try {
       const data = await api.fetchExamById(examId);
-      // Add correctAnswerIndex for each question:
       const questionsWithIndex = mapQuestionsToUI(data.questions ?? []);
       setExam({ ...data, questions: questionsWithIndex });
     } catch (e) {
@@ -52,7 +51,7 @@ const ExamEditor: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [examId, navigate]);
 
   useEffect(() => {
     fetchExam();
@@ -78,8 +77,8 @@ const ExamEditor: React.FC = () => {
       text: "",
       options: ["", ""],
       correctAnswerIndex: 0,
-      correctAnswers:[],
-      questionType:0
+      correctAnswers: [],
+      questionType: 0,
     });
     setQuestionDialogOpen(true);
   };
@@ -103,12 +102,12 @@ const ExamEditor: React.FC = () => {
       const idx = q.options.indexOf(q.correctAnswers[0]);
       correctAnswerIndex = idx >= 0 ? idx : 0;
     }
-  
+
     setEditingQuestion({
       ...q,
       correctAnswerIndex,
     });
-  
+
     setQuestionDialogOpen(true);
   };
 
@@ -200,32 +199,33 @@ const ExamEditor: React.FC = () => {
   const handleSaveExam = async () => {
     if (!exam) return;
     if (!exam.title.trim()) {
-      alert('Exam title is required');
+      alert("Exam title is required");
       return;
     }
     if (!exam.questions.length) {
-      alert('Add at least one question');
+      alert("Add at least one question");
       return;
     }
     setSaving(true);
     try {
-      const examToSave: Omit<Exam, 'id'> = {
+      const examToSave: Omit<Exam, "id"> = {
         title: exam.title,
         description: exam.description,
         durationMinutes: exam.durationMinutes,
         questions: exam.questions.map(({ correctAnswerIndex, ...q }) => ({
           ...q,
-          correctAnswers: q.options && typeof correctAnswerIndex === 'number'
-            ? [q.options[correctAnswerIndex]]
-            : null,
+          correctAnswers:
+            q.options && typeof correctAnswerIndex === "number"
+              ? [q.options[correctAnswerIndex]]
+              : null,
         })),
       };
-  console.log("examm", exam, examToSave)
+      console.log("examm", exam, examToSave);
       await api.updateExam(exam.id, examToSave);
-      alert('Exam saved successfully');
-      navigate('/teacher/dashboard');
+      alert("Exam saved successfully");
+      navigate("/teacher/dashboard");
     } catch (e) {
-      alert('Failed to save exam');
+      alert("Failed to save exam");
     } finally {
       setSaving(false);
     }
