@@ -18,34 +18,34 @@ const App: React.FC = () => (
   <AuthProvider>
     <BrowserRouter>
       <Routes>
-          <Route path="/" element={<HomePage />} />
-
-        <Route path="/auth">
-          <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route index element={<Navigate to="/auth/login" />} />
-        </Route>
-
+        <Route path="/" element={<HomePage />} />
+        
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route path="/auth/register" element={<RegisterPage />} />
+        <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
+        
+        {/* Protected routes with Layout */}
         <Route element={<RequireAuth allowedRoles={['teacher', 'student']} />}>
-          <Route path="/" element={<Layout />}>
+          <Route path="/dashboard" element={<Layout />}>
+            
             {/* Teacher routes */}
             <Route element={<RequireAuth allowedRoles={['teacher']} />}>
-              <Route index element={<Navigate to="teacher/dashboard" />} />
-              <Route path="teacher/dashboard" element={<TeacherDashboard />} />
+              <Route path="teacher" element={<TeacherDashboard />} />
               <Route path="teacher/exam/:examId" element={<ExamEditor />} />
               <Route path="teacher/results" element={<ResultsAnalytics />} />
             </Route>
-
+            
             {/* Student routes */}
             <Route element={<RequireAuth allowedRoles={['student']} />}>
-              <Route index element={<Navigate to="student/exams" />} />
-              <Route path="student/exams" element={<StudentExamList />} />
+              <Route path="student" element={<StudentExamList />} />
               <Route path="student/exam/:examId" element={<StudentTakeExam />} />
               <Route path="student/results" element={<StudentResults />} />
             </Route>
+            
+            <Route index element={<Navigate to="teacher" replace />} />
           </Route>
         </Route>
-
+        
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
