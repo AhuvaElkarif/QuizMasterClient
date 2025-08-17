@@ -1,164 +1,118 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store/store";
-import { register, clearError } from "../../store/slices/authSlice";
+import React from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
 import {
-  Card,
-  Form,
-  FormGroup,
-  Label,
-  Input,
+  Container,
+  TextField,
   Button,
-  Select,
-} from "../../styles/Theme";
-import styled from "styled-components";
-import Loading from "../../components/common/Loading";
-import ErrorMessage from "../../components/common/ErrorMessage";
+  Typography,
+  Box,
+  MenuItem,
+} from '@mui/material';
 
-const RegisterContainer = styled.div`
-  max-width: 500px;
-  margin: var(--spacing-xxl) auto;
-`;
-
-const Title = styled.h2`
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
-`;
+interface RegisterForm {
+  username: string;
+  password: string;
+  role: 'teacher' | 'student';
+}
 
 const RegisterPage: React.FC = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState<string>("student");
-  const [formError, setFormError] = useState("");
-
-  const { isLoading, error, isAuthenticated, user } = useSelector(
-    (state: RootState) => state.auth
-  );
-  const dispatch = useDispatch();
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<RegisterForm>({
+    defaultValues: { role: 'student' },
+  });
 
-  useEffect(() => {
-    // נקה את השגיאות הקודמות
-    dispatch(clearError());
-  }, [dispatch]);
-
-  useEffect(() => {
-    // אם המשתמש מחובר, נפנה אותו לדף הראשי המתאים לתפקידו
-    if (isAuthenticated && user) {
-      if (user.role === "teacher") {
-        navigate("/teacher");
-      } else if (user.role === "student") {
-        navigate("/student");
-      } else {
-        navigate("/");
-      }
+  const onSubmit = async (data: RegisterForm) => {
+    try {
+      await registerUser(data.username, data.password, data.role);
+      navigate('/');
+    } catch (e) {
+      setError('username', { message: (e as Error).message });
     }
-  }, [isAuthenticated, user, navigate]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // בדיקת תקינות בסיסית
-    if (!username || !email || !password || !confirmPassword) {
-      setFormError("נא למלא את כל השדות");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setFormError("הסיסמאות אינן תואמות");
-      return;
-    }
-
-    if (password.length < 6) {
-      setFormError("הסיסמה חייבת להכיל לפחות 6 תווים");
-      return;
-    }
-
-    // נקה את השגיאות הקודמות
-    setFormError("");
-
-    // הרשמה
-    dispatch(register({ username, email, password, role }) as any);
   };
 
-  if (isLoading) {
-    return <Loading message="יוצר חשבון..." />;
-  }
-
   return (
-    <RegisterContainer>
-      <Card>
-        <Title>הרשמה</Title>
+    <Container maxWidth="xs">
+      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography component="h1" variant="h5">
+          Register
+        </Typography>
 
-        {error && <ErrorMessage message={error} />}
-        {formError && <ErrorMessage message={formError} />}
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
+          <Controller
+            name="username"
+            control={control}
+            rules={{ required: 'Username is required' }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="normal"
+                fullWidth
+                label="Username"
+                autoComplete="username"
+                autoFocus
+                error={!!errors.username}
+                helperText={errors.username?.message}
+              />
+            )}
+          />
+          <Controller
+            name="password"
+            control={control}
+            rules={{ required: 'Password is required', minLength: { value: 4, message: "Min length 4" } }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="normal"
+                fullWidth
+                label="Password"
+                type="password"
+                autoComplete="new-password"
+                error={!!errors.password}
+                helperText={errors.password?.message}
+              />
+            )}
+          />
+          <Controller
+            name="role"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                select
+                margin="normal"
+                fullWidth
+                label="Role"
+              >
+                <MenuItem value="student">Student</MenuItem>
+                <MenuItem value="teacher">Teacher</MenuItem>
+              </TextField>
+            )}
+          />
 
-        <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="username">שם משתמש</Label>
-            <Input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="שם משתמש"
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="email">אימייל</Label>
-            <Input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="role">תפקיד</Label>
-            <Select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <option value="student">תלמיד</option>
-              <option value="teacher">מורה</option>
-            </Select>
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="password">סיסמה</Label>
-            <Input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="********"
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="confirmPassword">אימות סיסמה</Label>
-            <Input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="********"
-            />
-          </FormGroup>
-
-          <Button type="submit" style={{ width: "100%" }}>
-            הרשם
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={isSubmitting}
+            sx={{ mt: 3, mb: 2 }}
+          >
+            {isSubmitting ? 'Registering...' : 'Register'}
           </Button>
-        </Form>
-      </Card>
-    </RegisterContainer>
+
+          <Typography variant="body2" align="center">
+            Already have an account? <Link to="/auth/login">Login</Link>
+          </Typography>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 
