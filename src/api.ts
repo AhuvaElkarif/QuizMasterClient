@@ -1,12 +1,10 @@
 import { Exam, ExamResult, User, Question } from "./types";
 
-const API_BASE = process.env.REACT_APP_API_BASE;
-// Helper to get JWT token from localStorage
+const API_BASE = `${process.env.REACT_APP_API_BASE}/api`;
 function getAuthToken(): string | null {
   return localStorage.getItem("token");
 }
 
-// Helper to handle JSON response & errors
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const errorBody = await response.json().catch(() => null);
