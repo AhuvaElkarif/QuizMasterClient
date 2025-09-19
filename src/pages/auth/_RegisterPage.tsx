@@ -12,13 +12,13 @@ import {
 } from '@mui/material';
 
 interface RegisterForm {
-  email: string;
+  username: string;
   password: string;
   role: 'teacher' | 'student';
 }
 
 const RegisterPage: React.FC = () => {
-  const { register: registerUser, loginWithGoogle } = useAuth();
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const {
     control,
@@ -31,10 +31,10 @@ const RegisterPage: React.FC = () => {
 
   const onSubmit = async (data: RegisterForm) => {
     try {
-      await registerUser(data.email, data.password, data.role);
-      navigate('/dashboard');
+      await registerUser(data.username, data.password, data.role);
+      navigate('/');
     } catch (e) {
-      setError('email', { message: (e as Error).message });
+      setError('username', { message: (e as Error).message });
     }
   };
 
@@ -47,26 +47,22 @@ const RegisterPage: React.FC = () => {
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
           <Controller
-            name="email"
+            name="username"
             control={control}
-            rules={{ 
-              required: 'Email is required',
-              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email address' }
-            }}
+            rules={{ required: 'Username is required' }}
             render={({ field }) => (
               <TextField
                 {...field}
                 margin="normal"
                 fullWidth
-                label="Email"
-                autoComplete="email"
+                label="Username"
+                autoComplete="username"
                 autoFocus
-                error={!!errors.email}
-                helperText={errors.email?.message}
+                error={!!errors.username}
+                helperText={errors.username?.message}
               />
             )}
           />
-
           <Controller
             name="password"
             control={control}
@@ -84,7 +80,6 @@ const RegisterPage: React.FC = () => {
               />
             )}
           />
-
           <Controller
             name="role"
             control={control}
@@ -110,22 +105,6 @@ const RegisterPage: React.FC = () => {
             sx={{ mt: 3, mb: 2 }}
           >
             {isSubmitting ? 'Registering...' : 'Register'}
-          </Button>
-
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{ mb: 2 }}
-            onClick={async () => {
-              try {
-                await loginWithGoogle();
-                navigate('/dashboard');
-              } catch (e) {
-                console.error(e);
-              }
-            }}
-          >
-            Continue with Google
           </Button>
 
           <Typography variant="body2" align="center">

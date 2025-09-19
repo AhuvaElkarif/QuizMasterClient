@@ -4,9 +4,8 @@ import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, role: 'teacher' | 'student') => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, password: string, role: 'teacher' | 'student') => Promise<void>;
   logout: () => void;
 }
 
@@ -23,19 +22,14 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     else localStorage.removeItem('exam-app-user');
   }, [user]);
 
-  const login = async (email: string, password: string) => {
-    const loggedInUser = await api.login(email, password);
+  const login = async (username: string, password: string) => {
+    const loggedInUser = await api.login(username, password);
     setUser(loggedInUser);
   };
 
-  const register = async (email: string, password: string, role: 'teacher' | 'student') => {
-    const registeredUser = await api.register(email, password, role);
+  const register = async (username: string, password: string, role: 'teacher' | 'student') => {
+    const registeredUser = await api.register(username, password, role);
     setUser(registeredUser);
-  };
-
-  const loginWithGoogle = async () => {
-    const googleUser = await api.googleLogin(); 
-    setUser(googleUser);
   };
 
   const logout = () => {
@@ -43,7 +37,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

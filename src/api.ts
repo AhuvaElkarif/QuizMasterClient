@@ -82,6 +82,18 @@ export const api = {
       token: data.token,
     };
   },
+  
+  async googleLogin(): Promise<User> {
+    const res = await fetch(`${API_BASE}/auth/google-login`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      throw new Error("Google login failed");
+    }
+    return res.json();
+  },
 
   async fetchExamsForTeacher(): Promise<Exam[]> {
     const token = getAuthToken();

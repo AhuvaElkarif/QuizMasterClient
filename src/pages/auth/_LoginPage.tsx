@@ -11,13 +11,19 @@ import {
 } from '@mui/material';
 
 interface LoginForm {
-  email: string;
+  username: string;
   password: string;
 }
 
 const LoginPage: React.FC = () => {
-  const { login, loginWithGoogle } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
+  // const {
+  //   control,
+  //   handleSubmit,
+  //   formState: { errors, isSubmitting },
+  //   setError,
+  // } = useForm<LoginForm>();
   const {
     control,
     handleSubmit,
@@ -25,17 +31,18 @@ const LoginPage: React.FC = () => {
     setError,
   } = useForm<LoginForm>({
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     }
   });
 
   const onSubmit = async (data: LoginForm) => {
+    console.log(data)
     try {
-      await login(data.email, data.password);
-      navigate('/dashboard');
+      await login(data.username, data.password);
+      navigate('/');
     } catch (e) {
-      setError('email', { message: (e as Error).message });
+      setError('username', { message: (e as Error).message });
     }
   };
 
@@ -48,22 +55,19 @@ const LoginPage: React.FC = () => {
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
           <Controller
-            name="email"
+            name="username"
             control={control}
-            rules={{ 
-              required: 'Email is required',
-              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email address' }
-            }}
+            rules={{ required: 'Username is required' }}
             render={({ field }) => (
               <TextField
                 {...field}
                 margin="normal"
                 fullWidth
-                label="Email"
-                autoComplete="email"
+                label="Username"
+                autoComplete="username"
                 autoFocus
-                error={!!errors.email}
-                helperText={errors.email?.message}
+                error={!!errors.username}
+                helperText={errors.username?.message}
               />
             )}
           />
@@ -94,22 +98,6 @@ const LoginPage: React.FC = () => {
             sx={{ mt: 3, mb: 2 }}
           >
             {isSubmitting ? 'Logging in...' : 'Login'}
-          </Button>
-
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{ mb: 2 }}
-            onClick={async () => {
-              try {
-                await loginWithGoogle();
-                navigate('/');
-              } catch (e) {
-                console.error(e);
-              }
-            }}
-          >
-            Continue with Google
           </Button>
 
           <Typography variant="body2" align="center">
