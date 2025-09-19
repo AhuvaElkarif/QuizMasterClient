@@ -51,7 +51,7 @@ const StudentExamList: React.FC = () => {
                 primary={exam.title}
                 secondary={`Duration: ${exam.durationMinutes} minutes`}
               />
-              <Button variant="contained" onClick={() => navigate(`/student/exam/${exam.id}`)}>
+              <Button variant="contained" onClick={() => navigate(`/dashboard/student/exam/${exam.id}`)}>
                 Take Exam
               </Button>
             </ListItem>

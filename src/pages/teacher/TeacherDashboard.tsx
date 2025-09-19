@@ -65,14 +65,14 @@ const TeacherDashboard: React.FC = () => {
       });
       setCreateOpen(false);
       console.log(newExam);
-      navigate(`/teacher/exam/${newExam.id}`);
+      navigate(`/dashboard/teacher/exam/${newExam.id}`);
     } catch (e) {
       alert("Failed to create exam");
     }
   };
 
   const handleEdit = (examId: string) => {
-    navigate(`/teacher/exam/${examId}`);
+    navigate(`/dashboard/teacher/exam/${examId}`);
   };
 
   return (
