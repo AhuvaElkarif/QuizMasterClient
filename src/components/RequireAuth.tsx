@@ -11,7 +11,8 @@ export const RequireAuth: React.FC<{ allowedRoles?: string[] }> = ({ allowedRole
   if (!user) return <Navigate to="/auth/login" replace />;
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    console.log(allowedRoles)
+    return <Navigate to="/dashboard" replace />;
   }
   return <Outlet />;
 };
