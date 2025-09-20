@@ -47,7 +47,7 @@ const ExamEditor: React.FC = () => {
       setExam({ ...data, questions: questionsWithIndex });
     } catch (e) {
       alert("Exam not found");
-      navigate("/teacher/dashboard");
+      navigate("/dashboard/teacher");
     } finally {
       setLoading(false);
     }
@@ -223,7 +223,7 @@ const ExamEditor: React.FC = () => {
       console.log("examm", exam, examToSave);
       await api.updateExam(exam.id, examToSave);
       alert("Exam saved successfully");
-      navigate("/teacher/dashboard");
+      navigate("/dashboard/teacher");
     } catch (e) {
       alert("Failed to save exam");
     } finally {
@@ -304,7 +304,7 @@ const ExamEditor: React.FC = () => {
         >
           {saving ? "Saving..." : "Save Exam"}
         </Button>
-        <Button sx={{ ml: 2 }} onClick={() => navigate("/teacher/dashboard")}>
+        <Button sx={{ ml: 2 }} onClick={() => navigate("/dashboard/teacher")}>
           Cancel
         </Button>
       </Box>

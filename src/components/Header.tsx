@@ -36,7 +36,7 @@ const Header: React.FC = () => {
               <Button
                 color="inherit"
                 component={NavLink}
-                to="/teacher/dashboard"
+                to="/dashboard/teacher"
                 sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
               >
                 Dashboard
@@ -44,7 +44,7 @@ const Header: React.FC = () => {
               <Button
                 color="inherit"
                 component={NavLink}
-                to="/teacher/results"
+                to="/dashboard/teacher/results"
                 sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
               >
                 Results Analytics

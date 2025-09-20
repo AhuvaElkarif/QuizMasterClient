@@ -21,6 +21,7 @@ const StudentExamList: React.FC = () => {
     setLoading(true);
     try {
       const data = await api.fetchExamsForStudent();
+      console.log("examssss", data)
       setExams(data);
     } catch (e) {
       alert('Failed to load exams');
