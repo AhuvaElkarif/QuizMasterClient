@@ -82,18 +82,52 @@ export const api = {
       token: data.token,
     };
   },
-  
-  async googleLogin(): Promise<User> {
-    const res = await fetch(`${API_BASE}/auth/google-login`, {
-      method: "GET",
-      credentials: "include",
-    });
 
-    if (!res.ok) {
-      throw new Error("Google login failed");
-    }
-    return res.json();
+  async googleLogin(): Promise<void> {
+    window.location.href = `${API_BASE}/auth/google-login`;
   },
+
+  googleLoginPopup(): void {
+    const popup = window.open(
+      `${API_BASE}/auth/google-login`,
+      'google-login',
+      'width=500,height=600,scrollbars=yes,resizable=yes'
+    );
+    
+    const checkClosed = setInterval(() => {
+      if (popup?.closed) {
+        clearInterval(checkClosed);
+        window.location.reload();
+      }
+    }, 1000);
+  },
+
+  async getCurrentUser(): Promise<User | null> {
+    const token = getAuthToken();
+    if (!token) return null;
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/user`, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      
+      if (!res.ok) {
+        localStorage.removeItem("token");
+        return null;
+      }
+      
+      const userData = await res.json();
+      return {
+        id: userData.id,
+        username: userData.name || userData.email,
+        role: userData.role.toLowerCase() as "teacher" | "student"
+      };
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      return null;
+    }
+  },
+
 
   async fetchExamsForTeacher(): Promise<Exam[]> {
     const token = getAuthToken();
