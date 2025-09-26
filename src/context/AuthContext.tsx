@@ -9,6 +9,8 @@ interface AuthContextType {
   register: (email: string, password: string, role: 'teacher' | 'student') => Promise<void>;
   loginWithGoogle: () => void;
   logout: () => void;
+  setUser: (user: User | null) => void; // הוספה
+  setToken: (token: string) => void; // הוספה
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,50 +49,64 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     checkCurrentUser();
   }, []);
 
-  // טיפול בחזרה מ-Google OAuth
+  // טיפול בחזרה מ-Google OAuth - UPDATED
   useEffect(() => {
     const handleGoogleCallback = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const userParam = urlParams.get('user');
-      
-      if (userParam) {
-        try {
-          const userData = JSON.parse(decodeURIComponent(userParam));
-          
-          // המרה לפורמט User
-          const googleUser: User = {
-            id: userData.id,
-            email: userData.name || userData.email,
-            role: userData.role.toLowerCase() as 'teacher' | 'student'
-          };
+      // בדוק אם זה הדף auth-success
+      if (window.location.pathname === '/auth-success') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userParam = urlParams.get('user');
+        
+        if (userParam) {
+          try {
+            const userData = JSON.parse(decodeURIComponent(userParam));
+            
+            // המרה לפורמט User - תיקון שדות
+            const googleUser: User = {
+              id: userData.Id || userData.id,
+              email: userData.Email || userData.email,
+              role: (userData.Role || userData.role).toLowerCase() as 'teacher' | 'student'
+            };
 
-          // שמירת הטוקן
-          if (userData.token) {
-            localStorage.setItem('token', userData.token);
-          }
+            // שמירת הטוקן
+            if (userData.Token || userData.token) {
+              localStorage.setItem('token', userData.Token || userData.token);
+            }
 
-          setUser(googleUser);
-          
-          // נקה את הפרמטרים מה-URL
-          window.history.replaceState({}, document.title, window.location.pathname);
-          
-          // הודעה למשתמש חדש
-          if (userData.isNewUser) {
+            setUser(googleUser);
+            
+            // הודעה למשתמש חדש
+            if (userData.IsNewUser || userData.isNewUser) {
+              setTimeout(() => {
+                alert('Welcome! Your account has been created successfully.');
+              }, 100);
+            }
+
+            // הפניה ל-dashboard אחרי עיבוד הנתונים
             setTimeout(() => {
-              alert('Welcome! Your account has been created successfully.');
-            }, 100);
+              window.location.href = '/dashboard';
+            }, 500);
+            
+          } catch (error) {
+            console.error('Failed to parse Google user data:', error);
+            window.location.href = '/auth/login?error=invalid_data';
           }
-        } catch (error) {
-          console.error('Failed to parse Google user data:', error);
+        } else {
+          window.location.href = '/auth/login?error=no_user_data';
         }
       }
 
-      // טיפול בשגיאות מ-Google
-      const errorParam = urlParams.get('message');
-      if (errorParam) {
-        console.error('Google auth error:', decodeURIComponent(errorParam));
-        alert(`Authentication error: ${decodeURIComponent(errorParam)}`);
-        window.history.replaceState({}, document.title, window.location.pathname);
+      // טיפול בשגיאות מ-Google - עבור דף auth-error
+      if (window.location.pathname === '/auth-error') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorParam = urlParams.get('message');
+        if (errorParam) {
+          console.error('Google auth error:', decodeURIComponent(errorParam));
+          setTimeout(() => {
+            alert(`Authentication error: ${decodeURIComponent(errorParam)}`);
+            window.location.href = '/auth/login';
+          }, 100);
+        }
       }
     };
 
@@ -116,7 +132,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   };
 
   const loginWithGoogle = () => {
-    // פשוט מפנה ל-Google - לא צריך async
     api.googleLogin();
   };
 
@@ -125,13 +140,21 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     localStorage.removeItem('token');
     localStorage.removeItem('exam-app-user');
     
-    // ניקוי עוגיית Google Auth
     fetch(`${process.env.REACT_APP_API_BASE}/api/auth/google-logout`, {
       method: 'POST',
       credentials: 'include',
     }).catch(console.error);
   };
 
+  // פונקציות עזר חדשות
+  const setToken = (token: string) => {
+    localStorage.setItem('token', token);
+  };
+
+  const setUserHelper = (newUser: User | null) => {
+    setUser(newUser);
+  };
+  
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -139,7 +162,9 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       login, 
       register, 
       loginWithGoogle, 
-      logout 
+      logout,
+      setUser: setUserHelper,
+      setToken
     }}>
       {children}
     </AuthContext.Provider>

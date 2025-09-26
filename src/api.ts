@@ -87,20 +87,20 @@ export const api = {
     window.location.href = `${API_BASE}/auth/google-login`;
   },
 
-  googleLoginPopup(): void {
-    const popup = window.open(
-      `${API_BASE}/auth/google-login`,
-      'google-login',
-      'width=500,height=600,scrollbars=yes,resizable=yes'
-    );
+  // googleLoginPopup(): void {
+  //   const popup = window.open(
+  //     `${API_BASE}/auth/google-login`,
+  //     'google-login',
+  //     'width=500,height=600,scrollbars=yes,resizable=yes'
+  //   );
     
-    const checkClosed = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(checkClosed);
-        window.location.reload();
-      }
-    }, 1000);
-  },
+  //   const checkClosed = setInterval(() => {
+  //     if (popup?.closed) {
+  //       clearInterval(checkClosed);
+  //       window.location.reload();
+  //     }
+  //   }, 1000);
+  // },
 
   async getCurrentUser(): Promise<User | null> {
     const token = getAuthToken();
