@@ -1,6 +1,6 @@
 export interface User {
   id: string;
-  username: string;
+  email: string;
   role: 'teacher' | 'student';
   token?: string; // For auth token client-side stored
 }

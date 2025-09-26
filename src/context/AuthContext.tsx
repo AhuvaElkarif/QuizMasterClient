@@ -4,10 +4,10 @@ import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean; // הוספתי loading state
+  loading: boolean; 
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, role: 'teacher' | 'student') => Promise<void>;
-  loginWithGoogle: () => void; // שינוי - זה לא async יותר
+  loginWithGoogle: () => void;
   logout: () => void;
 }
 
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
           // המרה לפורמט User
           const googleUser: User = {
             id: userData.id,
-            username: userData.name || userData.email,
+            email: userData.name || userData.email,
             role: userData.role.toLowerCase() as 'teacher' | 'student'
           };
 
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     const loggedInUser = await api.login(email, password);
     setUser({
       id: loggedInUser.id,
-      username: loggedInUser.username,
+      email: loggedInUser.email,
       role: loggedInUser.role
     });
   };
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     const registeredUser = await api.register(email, password, role);
     setUser({
       id: registeredUser.id,
-      username: registeredUser.username,
+      email: registeredUser.email,
       role: registeredUser.role
     });
   };

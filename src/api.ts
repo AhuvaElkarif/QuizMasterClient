@@ -20,17 +20,17 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 export const api = {
   async login(
-    username: string,
+    email: string,
     password: string
   ): Promise<User & { token: string }> {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
     const data = await handleResponse<{
       token: string;
-      username: string;
+      email: string;
       role: string;
     }>(res);
 
@@ -43,14 +43,14 @@ export const api = {
 
     return {
       id: "",
-      username: data.username,
+      email: data.email,
       role: role as "teacher" | "student",
       token: data.token,
     };
   },
 
   async register(
-    username: string,
+    email: string,
     password: string,
     role: "teacher" | "student"
   ): Promise<User & { token: string }> {
@@ -58,14 +58,14 @@ export const api = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username,
+        email,
         password,
         role: role.charAt(0).toUpperCase() + role.slice(1),
       }),
     });
     const data = await handleResponse<{
       token: string;
-      username: string;
+      email: string;
       role: string;
     }>(res);
 
@@ -77,7 +77,7 @@ export const api = {
 
     return {
       id: "",
-      username: data.username,
+      email: data.email,
       role: roleLower as "teacher" | "student",
       token: data.token,
     };
@@ -119,7 +119,7 @@ export const api = {
       const userData = await res.json();
       return {
         id: userData.id,
-        username: userData.name || userData.email,
+        email: userData.name || userData.email,
         role: userData.role.toLowerCase() as "teacher" | "student"
       };
     } catch (error) {
