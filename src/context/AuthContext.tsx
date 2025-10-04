@@ -115,6 +115,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     const loggedInUser = await api.login(email, password);
+    console.log(loggedInUser)
     setUser({
       id: loggedInUser.id,
       email: loggedInUser.email,
