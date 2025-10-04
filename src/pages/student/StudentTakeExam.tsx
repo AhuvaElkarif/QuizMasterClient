@@ -60,7 +60,7 @@ const StudentTakeExam: React.FC = () => {
       await api.submitExamResult(attemptId, submitAnswers);
 
       alert("Exam submitted successfully!");
-      navigate("/student/results");
+      navigate("/dashboard/student/results");
     } catch (e) {
       alert("Failed to submit exam");
     }

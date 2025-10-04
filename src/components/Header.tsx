@@ -65,7 +65,7 @@ const Header: React.FC = () => {
               <Button
                 color="inherit"
                 component={NavLink}
-                to="/student/results"
+                to="/dashboard/student/results"
                 sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
               >
                 My Results
