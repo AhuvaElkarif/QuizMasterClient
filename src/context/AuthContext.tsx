@@ -140,7 +140,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     localStorage.removeItem('token');
     localStorage.removeItem('exam-app-user');
     
-    fetch(`${process.env.REACT_APP_API_BASE}/api/auth/google-logout`, {
+    fetch(`${process.env.REACT_APP_API_BASE}/api/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     }).catch(console.error);

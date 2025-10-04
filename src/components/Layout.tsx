@@ -57,7 +57,7 @@ const Layout: React.FC = () => {
               <Button
                 color="inherit"
                 component={NavLink}
-                to="/dashboard/student/exams"
+                to="/dashboard/student"
                 sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
               >
                 Exams
