@@ -1,7 +1,7 @@
-import React from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -9,7 +9,7 @@ const Layout: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -31,34 +31,19 @@ const Layout: React.FC = () => {
             </>
           )}
 
-          {user?.role === 'teacher' && (
-            <>
-              <Button
-                color="inherit"
-                component={NavLink}
-                to="/dashboard/teacher"
-                sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
-              >
-                Dashboard
-              </Button>
-              <Button
-                color="inherit"
-                component={NavLink}
-                to="/dashboard/teacher/results"
-                sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
-              >
-                Results Analytics
-              </Button>
-            </>
-          )}
-
-          {user?.role === 'student' && (
+          {user?.role === "student" && (
             <>
               <Button
                 color="inherit"
                 component={NavLink}
                 to="/dashboard/student"
-                sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
+                end 
+                sx={{
+                  "&.active": {
+                    fontWeight: "bold",
+                    borderBottom: "2px solid #fff",
+                  },
+                }}
               >
                 Exams
               </Button>
@@ -66,9 +51,46 @@ const Layout: React.FC = () => {
                 color="inherit"
                 component={NavLink}
                 to="/dashboard/student/results"
-                sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
+                sx={{
+                  "&.active": {
+                    fontWeight: "bold",
+                    borderBottom: "2px solid #fff",
+                  },
+                }}
               >
                 My Results
+              </Button>
+            </>
+          )}
+
+          {user?.role === "teacher" && (
+            <>
+              <Button
+                color="inherit"
+                component={NavLink}
+                to="/dashboard/teacher"
+                end 
+                sx={{
+                  "&.active": {
+                    fontWeight: "bold",
+                    borderBottom: "2px solid #fff",
+                  },
+                }}
+              >
+                Dashboard
+              </Button>
+              <Button
+                color="inherit"
+                component={NavLink}
+                to="/dashboard/teacher/results"
+                sx={{
+                  "&.active": {
+                    fontWeight: "bold",
+                    borderBottom: "2px solid #fff",
+                  },
+                }}
+              >
+                Results Analytics
               </Button>
             </>
           )}
@@ -81,7 +103,7 @@ const Layout: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ maxWidth: 900, margin: 'auto', padding: 2 }}>
+      <Box sx={{ maxWidth: 900, margin: "auto", padding: 2 }}>
         <Outlet />
       </Box>
     </>
