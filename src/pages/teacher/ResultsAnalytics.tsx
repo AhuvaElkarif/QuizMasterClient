@@ -34,6 +34,7 @@ const ResultsAnalytics: React.FC = () => {
     setLoading(true);
     try {
       const data = await api.fetchResultsForTeacher();
+      console.log("dataa", data)
       setResults(data);
       const examIds = Array.from(new Set(data.map((res) => res.examId)))
         .filter((id): id is string => Boolean(id));
