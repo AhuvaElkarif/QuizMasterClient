@@ -57,7 +57,7 @@ const Header: React.FC = () => {
               <Button
                 color="inherit"
                 component={NavLink}
-                to="/student/exams"
+                to="/dashboard/student"
                 sx={{ '&.active': { fontWeight: 'bold', borderBottom: '2px solid #fff' } }}
               >
                 Exams

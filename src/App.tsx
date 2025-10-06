@@ -48,7 +48,7 @@ const App: React.FC = () => (
               <Route path="student/results" element={<StudentResults />} />
             </Route>
 
-            <Route index element={<Navigate to="teacher" replace />} />
+            {/* <Route index element={<Navigate to="teacher" replace />} /> */}
           </Route>
         </Route>
 

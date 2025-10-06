@@ -133,7 +133,7 @@ const StudentTakeExam: React.FC = () => {
         <Button variant="contained" onClick={handleSubmit}>
           Submit Exam
         </Button>
-        <Button sx={{ ml: 2 }} onClick={() => navigate("/student/exams")}>
+        <Button sx={{ ml: 2 }} onClick={() => navigate("/dashboard/student/exams")}>
           Cancel
         </Button>
       </Box>
